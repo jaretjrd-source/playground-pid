@@ -51,7 +51,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 
 ## Progreso general
 
-- [ ] Fase 0 — Entorno y proyecto Vite
+- [~] Fase 0 — Entorno y proyecto Vite (falta crear/conectar repo en GitHub)
 - [ ] Fase 1 — La planta (simulación a lazo abierto)
 - [ ] Fase 2 — El controlador PID (lazo cerrado)
 - [ ] Fase 3 — Controles e interacción
@@ -68,15 +68,16 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 
 Meta: proyecto Vite corriendo y versionado.
 
-- [ ] Confirmar que **Node.js** está instalado (`node -v`, `npm -v`). Si no, instalarlo.
-- [ ] En esta carpeta: `npm create vite@latest . -- --template vanilla`
-- [ ] `npm install`
-- [ ] `npm run dev` abre la página de ejemplo de Vite en el navegador
-- [ ] Entender la estructura: `index.html`, `src/main.js`, `src/style.css`, `public/`
-- [ ] `git init` + primer commit (Vite ya incluye un `.gitignore` con `node_modules/` y `dist/`)
+- [x] Confirmar que **Node.js** está instalado (`node -v`, `npm -v`). Si no, instalarlo.
+      → Node v24.16.0, npm 11.13.0, git 2.55.0
+- [x] En esta carpeta: `npm create vite@latest . -- --template vanilla`
+- [x] `npm install`
+- [x] `npm run dev` abre la página de ejemplo de Vite en el navegador
+- [x] Entender la estructura: `index.html`, `src/main.js`, `src/style.css`, `public/`
+- [x] `git init` + primer commit (Vite ya incluye un `.gitignore` con `node_modules/` y `dist/`)
 - [ ] Crear repo en GitHub llamado `playground-pid` (público, sin README)
 - [ ] Conectar (`git remote add origin …`) y `git push`
-- [ ] Borrar el contenido de ejemplo de `main.js`/`style.css` y dejar un "hola" propio
+- [x] Borrar el contenido de ejemplo de `main.js`/`style.css` y dejar un "hola" propio
 
 **Fase 0 lista cuando:** `npm run dev` muestra mi página y el repo está en GitHub.
 
@@ -220,6 +221,6 @@ Meta: el "poco de TypeScript".
 
 ## Notas del proyecto
 
-- **Repo de GitHub:** _(pendiente — Fase 0)_
+- **Repo de GitHub:** _(pendiente — falta crear `playground-pid` y hacer push)_
 - **URL pública:** _(pendiente — Fase 7)_
-- **Fecha de inicio:** _(pendiente)_
+- **Fecha de inicio:** 2026-08-29
