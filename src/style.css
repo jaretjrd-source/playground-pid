@@ -6,6 +6,7 @@
   --texto: #1a1a1a;
   --panel: #f4f4f5;
   --borde: #e0e0e2;
+  --foco: #2f6fed;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +15,7 @@
     --texto: #e8e8e8;
     --panel: #22252c;
     --borde: #33373f;
+    --foco: #6ea8ff;
   }
 }
 
@@ -62,10 +64,21 @@ code {
 
 .controles {
   margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.controles fieldset {
+  margin: 0;
   padding: 1rem;
   background: var(--panel);
   border: 1px solid var(--borde);
   border-radius: 8px;
+}
+
+.controles legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
 }
 
 .controles label {
@@ -79,9 +92,15 @@ code {
   width: 100%;
 }
 
-.controles button {
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+button {
   font: inherit;
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 0.9rem;
   border: 1px solid var(--borde);
   border-radius: 6px;
   background: var(--fondo);
@@ -89,6 +108,12 @@ code {
   cursor: pointer;
 }
 
-.controles button:hover {
+button:hover {
   border-color: currentColor;
+}
+
+button:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
 }

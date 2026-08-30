@@ -5,36 +5,45 @@ import { createPlot, MAX_PUNTOS } from './plot.js'
 
 // ─── Configuración de la simulación ───────────────────────────────────────────
 const DT = 0.03        // paso de tiempo fijo, en segundos
-const SETPOINT = 1     // objetivo fijo por ahora (en la Fase 3 se podrá mover)
 const TAU = 1.5        // constante de tiempo de la planta
 
-// ─── Elementos del DOM ───────────────────────────────────────────────────────
-const canvas = document.querySelector('#grafica')
-const btnReiniciar = document.querySelector('#btn-reiniciar')
-
-// ─── Estado ──────────────────────────────────────────────────────────────────
-const plot = createPlot(canvas)
-let planta = createState(TAU)
-const pid = createPid({ Kp: 1.5, Ki: 0.8, Kd: 0.08 })
-const historial = []   // valores de `v` que se van dibujando
-
-// ─── Interacción ─────────────────────────────────────────────────────────────
-// Conecta un <input range> con su etiqueta numérica y avisa del nuevo valor.
-function conectarSlider(idSlider, idValor, alCambiar) {
-  const slider = document.querySelector(idSlider)
-  const etiqueta = document.querySelector(idValor)
-  const refrescar = () => {
-    const valor = Number(slider.value)
-    etiqueta.textContent = valor.toFixed(2)
-    alCambiar(valor)
-  }
-  slider.addEventListener('input', refrescar)
-  refrescar() // aplica el valor inicial al arrancar
+// Ganancias predefinidas. Cada preset enseña un comportamiento distinto:
+//   p   → solo P: rápido pero deja error permanente (no llega al objetivo)
+//   pi  → PI: cierra el error, respuesta suave
+//   pid → PID ajustado: rápido y sin sobrepaso
+//   osc → Ki muy alto: se pasa del objetivo y oscila antes de asentarse
+//         (con esta planta de 1.er orden es la I, no la P, la que hace oscilar)
+const PRESETS = {
+  p: { Kp: 2, Ki: 0, Kd: 0 },
+  pi: { Kp: 1.5, Ki: 1, Kd: 0 },
+  pid: { Kp: 3, Ki: 1.5, Kd: 0.25 },
+  osc: { Kp: 3, Ki: 10, Kd: 0 },
 }
 
-conectarSlider('#slider-kp', '#valor-kp', (v) => { pid.Kp = v })
-conectarSlider('#slider-ki', '#valor-ki', (v) => { pid.Ki = v })
-conectarSlider('#slider-kd', '#valor-kd', (v) => { pid.Kd = v })
+// ¿El sistema operativo pide menos animación? Entonces no animamos: calculamos
+// la respuesta completa de una vez y la dibujamos estática.
+const prefiereMenosMovimiento =
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// ─── Estado ──────────────────────────────────────────────────────────────────
+const plot = createPlot(document.querySelector('#grafica'))
+let planta = createState(TAU)
+const pid = createPid(PRESETS.pid)
+let setpoint = 1
+const historial = []
+
+// ─── Núcleo de la simulación ─────────────────────────────────────────────────
+// Un paso del lazo cerrado: error → PID → planta → guardar.
+function pasoSimulacion() {
+  const error = setpoint - planta.v
+  const u = compute(pid, error, DT)
+  planta = step(planta, u, DT)
+
+  historial.push(planta.v)
+  if (historial.length > MAX_PUNTOS) {
+    historial.shift()
+  }
+}
 
 function reiniciar() {
   planta = createState(TAU)
@@ -42,22 +51,95 @@ function reiniciar() {
   historial.length = 0
 }
 
-btnReiniciar.addEventListener('click', reiniciar)
-window.addEventListener('resize', () => plot.resize())
-
-// ─── Bucle principal ─────────────────────────────────────────────────────────
-function frame() {
-  const error = SETPOINT - planta.v     // 1. cuánto falta para el objetivo
-  const u = compute(pid, error, DT)     // 2. el PID decide la entrada
-  planta = step(planta, u, DT)          // 3. la planta reacciona un paso
-
-  historial.push(planta.v)              // 4. guardar y acotar el historial
-  if (historial.length > MAX_PUNTOS) {
-    historial.shift()
+// Modo estático: reinicia y corre la simulación entera en un bucle, sin animar.
+function recalcularEstatico() {
+  reiniciar()
+  for (let i = 0; i < MAX_PUNTOS; i++) {
+    pasoSimulacion()
   }
-
-  plot.draw(historial, SETPOINT)        // 5. redibujar
-  requestAnimationFrame(frame)          // 6. repetir en el próximo cuadro
+  plot.draw(historial, setpoint)
 }
 
-requestAnimationFrame(frame)
+// Se llama tras CUALQUIER cambio de parámetro. En modo animado no hace falta
+// nada (el bucle ya usa los valores nuevos); en modo estático hay que redibujar.
+function alCambiarParametro() {
+  if (prefiereMenosMovimiento) {
+    recalcularEstatico()
+  }
+}
+
+// ─── Controles ───────────────────────────────────────────────────────────────
+// Conecta un <input range> con su etiqueta numérica y con el estado.
+// Devuelve un objeto con `set(valor)` para moverlo desde código (presets, etc.).
+function crearSlider(idSlider, idValor, aplicar) {
+  const slider = document.querySelector(idSlider)
+  const etiqueta = document.querySelector(idValor)
+
+  function sincronizar() {
+    const valor = Number(slider.value)
+    etiqueta.textContent = valor.toFixed(2)
+    aplicar(valor)
+  }
+
+  slider.addEventListener('input', () => {
+    sincronizar()
+    alCambiarParametro()
+  })
+
+  sincronizar() // aplica el valor inicial del HTML (sin recalcular todavía)
+
+  return {
+    set(valor) {
+      slider.value = valor
+      sincronizar()
+    },
+  }
+}
+
+const sliderKp = crearSlider('#slider-kp', '#valor-kp', (v) => { pid.Kp = v })
+const sliderKi = crearSlider('#slider-ki', '#valor-ki', (v) => { pid.Ki = v })
+const sliderKd = crearSlider('#slider-kd', '#valor-kd', (v) => { pid.Kd = v })
+const sliderSp = crearSlider('#slider-sp', '#valor-sp', (v) => { setpoint = v })
+
+function aplicarPreset(nombre) {
+  const g = PRESETS[nombre]
+  sliderKp.set(g.Kp)
+  sliderKi.set(g.Ki)
+  sliderKd.set(g.Kd)
+  reiniciar()
+  alCambiarParametro()
+}
+
+function nuevoEscalon() {
+  const aleatorio = 0.3 + Math.random() * 1.2 // entre 0.3 y 1.5
+  sliderSp.set(Math.round(aleatorio / 0.05) * 0.05)
+  reiniciar()
+  alCambiarParametro()
+}
+
+document.querySelectorAll('[data-preset]').forEach((boton) => {
+  boton.addEventListener('click', () => aplicarPreset(boton.dataset.preset))
+})
+document.querySelector('#btn-escalon').addEventListener('click', nuevoEscalon)
+document.querySelector('#btn-reiniciar').addEventListener('click', () => {
+  reiniciar()
+  alCambiarParametro()
+})
+window.addEventListener('resize', () => {
+  plot.resize()
+  if (prefiereMenosMovimiento) {
+    plot.draw(historial, setpoint)
+  }
+})
+
+// ─── Arranque ────────────────────────────────────────────────────────────────
+if (prefiereMenosMovimiento) {
+  recalcularEstatico()
+} else {
+  const frame = () => {
+    pasoSimulacion()
+    plot.draw(historial, setpoint)
+    requestAnimationFrame(frame)
+  }
+  requestAnimationFrame(frame)
+}

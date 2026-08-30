@@ -54,7 +54,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 - [x] Fase 0 — Entorno y proyecto Vite
 - [x] Fase 1 — La planta (simulación a lazo abierto)
 - [x] Fase 2 — El controlador PID (lazo cerrado)
-- [ ] Fase 3 — Controles e interacción
+- [x] Fase 3 — Controles e interacción
 - [ ] Fase 4 — Métricas de desempeño
 - [ ] Fase 5 — Pulido visual y UX
 - [ ] Fase 6 — Calidad de código y README
@@ -124,12 +124,14 @@ Meta: que el sistema llegue solo al objetivo.
 
 Meta: que se sienta un "playground".
 
-- [ ] Control para cambiar el **setpoint** (respuesta al escalón). Botón "nuevo escalón".
-- [ ] Mostrar el valor numérico actual de cada slider (Kp, Ki, Kd, setpoint).
-- [ ] Presets: **"Solo P"**, **"PI"**, **"PID ajustado"**, **"Kp muy alto (oscila)"**.
-- [ ] `prefers-reduced-motion`: en lugar de animar, calcular la respuesta completa
+- [x] Control para cambiar el **setpoint** (respuesta al escalón). Botón "nuevo escalón".
+- [x] Mostrar el valor numérico actual de cada slider (Kp, Ki, Kd, setpoint).
+- [x] Presets: **"Solo P"**, **"PI"**, **"PID ajustado"**, **"Ki muy alto (oscila)"**.
+  (El plan decía "Kp muy alto"; con una planta de primer orden solo Kp no oscila
+  —queda más rápido y con error—, así que el preset que oscila usa Ki alto.)
+- [x] `prefers-reduced-motion`: en lugar de animar, calcular la respuesta completa
   y dibujarla estática; recalcular al mover un slider.
-- [ ] Estados de foco visibles en todos los controles (`:focus-visible`).
+- [x] Estados de foco visibles en todos los controles (`:focus-visible`).
 
 **Fase 3 lista cuando:** puedo experimentar con presets y setpoints y "sentir" el efecto.
 
