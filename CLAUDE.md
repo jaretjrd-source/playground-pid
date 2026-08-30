@@ -52,7 +52,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 ## Progreso general
 
 - [x] Fase 0 — Entorno y proyecto Vite
-- [ ] Fase 1 — La planta (simulación a lazo abierto)
+- [x] Fase 1 — La planta (simulación a lazo abierto)
 - [ ] Fase 2 — El controlador PID (lazo cerrado)
 - [ ] Fase 3 — Controles e interacción
 - [ ] Fase 4 — Métricas de desempeño
@@ -87,16 +87,16 @@ Meta: proyecto Vite corriendo y versionado.
 
 Meta: ver un sistema físico respondiendo en una gráfica, sin control todavía.
 
-- [ ] `src/plant.js`: modelo de **primer orden** `v_next = v + ((u - v) / tau) * dt`
+- [x] `src/plant.js`: modelo de **primer orden** `v_next = v + ((u - v) / tau) * dt`
   con `export function step(state, u, dt)` y un `tau` configurable.
-- [ ] `src/plot.js`: dibujar en `<canvas>` una traza que se desplaza a la derecha,
+- [x] `src/plot.js`: dibujar en `<canvas>` una traza que se desplaza a la derecha,
   con grid de fondo y una línea horizontal de "objetivo" (setpoint).
-- [ ] `src/main.js`: bucle con `requestAnimationFrame`, `dt` fijo (~0.03 s),
+- [x] `src/main.js`: bucle con `requestAnimationFrame`, `dt` fijo (~0.03 s),
   guarda el historial de `v` y lo manda a `plot`.
-- [ ] Un slider que controla `u` directamente (entrada manual) para ver la
+- [x] Un slider que controla `u` directamente (entrada manual) para ver la
   respuesta de la planta sola.
-- [ ] Manejar `devicePixelRatio` para que el canvas se vea nítido.
-- [ ] Manejar `resize` de la ventana.
+- [x] Manejar `devicePixelRatio` para que el canvas se vea nítido.
+- [x] Manejar `resize` de la ventana.
 
 **Fase 1 lista cuando:** muevo el slider de `u` y la curva de la planta reacciona.
 

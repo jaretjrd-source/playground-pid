@@ -1,0 +1,104 @@
+// ─── La gráfica ───────────────────────────────────────────────────────────────
+// Dibuja en un <canvas>: una rejilla de fondo, la línea del objetivo (setpoint)
+// y la traza de la salida `v` que se desplaza hacia la derecha (lo más nuevo
+// siempre queda pegado al borde derecho).
+
+// Rango vertical fijo que se ve en la gráfica.
+const Y_MIN = -0.2;
+const Y_MAX = 2.2;
+
+// Cuántas muestras caben a lo ancho. También es el tope del historial en main.js.
+export const MAX_PUNTOS = 600;
+
+/**
+ * Prepara la gráfica sobre un canvas concreto.
+ * Devuelve { draw, resize } para usar desde el bucle principal.
+ */
+export function createPlot(canvas) {
+  const ctx = canvas.getContext('2d');
+
+  // Tamaño del canvas en píxeles CSS (no en píxeles físicos).
+  let ancho = 0;
+  let alto = 0;
+
+  // Ajusta el canvas a su tamaño en pantalla teniendo en cuenta la densidad de
+  // píxeles del monitor (devicePixelRatio) para que se vea nítido, no borroso.
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+
+    ancho = rect.width;
+    alto = rect.height;
+
+    canvas.width = Math.round(ancho * dpr);
+    canvas.height = Math.round(alto * dpr);
+
+    // A partir de aquí dibujamos en coordenadas CSS: 1 unidad = 1 px en pantalla.
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // Convierte un valor de la planta (eje Y) a una coordenada en píxeles.
+  // Y crece hacia abajo en el canvas, por eso restamos.
+  function yPix(valor) {
+    const t = (valor - Y_MIN) / (Y_MAX - Y_MIN); // 0 abajo … 1 arriba
+    return alto - t * alto;
+  }
+
+  function dibujarGrid() {
+    ctx.strokeStyle = 'rgba(128, 128, 128, 0.25)';
+    ctx.lineWidth = 1;
+    for (let v = 0; v <= 2; v += 0.5) {
+      const y = yPix(v);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(ancho, y);
+      ctx.stroke();
+    }
+  }
+
+  function dibujarSetpoint(setpoint) {
+    ctx.strokeStyle = '#e0a020';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 6]); // línea punteada
+    const y = yPix(setpoint);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(ancho, y);
+    ctx.stroke();
+    ctx.setLineDash([]); // volvemos a línea continua
+  }
+
+  function dibujarTraza(historial) {
+    ctx.strokeStyle = '#2f9e44';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+
+    const paso = ancho / (MAX_PUNTOS - 1);
+    // Si el historial aún no llena la gráfica, empieza desplazado a la derecha.
+    const inicio = MAX_PUNTOS - historial.length;
+
+    historial.forEach((valor, i) => {
+      const x = (inicio + i) * paso;
+      const y = yPix(valor);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+  }
+
+  /**
+   * Redibuja toda la gráfica.
+   * @param {number[]} historial  valores de `v`, del más viejo al más nuevo
+   * @param {number}   setpoint   valor objetivo (línea punteada)
+   */
+  function draw(historial, setpoint) {
+    ctx.clearRect(0, 0, ancho, alto);
+    dibujarGrid();
+    dibujarSetpoint(setpoint);
+    dibujarTraza(historial);
+  }
+
+  resize(); // medir una vez al crear
+  return { draw, resize };
+}
