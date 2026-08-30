@@ -53,7 +53,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 
 - [x] Fase 0 — Entorno y proyecto Vite
 - [x] Fase 1 — La planta (simulación a lazo abierto)
-- [ ] Fase 2 — El controlador PID (lazo cerrado)
+- [x] Fase 2 — El controlador PID (lazo cerrado)
 - [ ] Fase 3 — Controles e interacción
 - [ ] Fase 4 — Métricas de desempeño
 - [ ] Fase 5 — Pulido visual y UX
@@ -106,15 +106,15 @@ Meta: ver un sistema físico respondiendo en una gráfica, sin control todavía.
 
 Meta: que el sistema llegue solo al objetivo.
 
-- [ ] `src/pid.js`: `export function compute(pidState, error, dt)` que devuelve `u`
-  a partir de los términos:
+- [x] `src/pid.js`: `export function compute(pid, error, dt)` que devuelve `u`
+  a partir de los términos (las ganancias Kp/Ki/Kd viven dentro de `pid`):
   - P: `Kp * error`
-  - I: `Ki * (integral acumulada)` con **anti-windup** (limitar la integral)
-  - D: `Kd * (derivada del error)`
-- [ ] Conectar el lazo: `error = setpoint - v` → `pid.compute` → `plant.step` → repetir.
-- [ ] Sliders para **Kp, Ki, Kd** conectados al estado (eventos `input`).
-- [ ] La gráfica ahora muestra la respuesta a lazo cerrado hacia el setpoint.
-- [ ] Botón para reiniciar la simulación (v=0, integral=0).
+  - I: `Ki * (integral acumulada)` con **anti-windup** (integral recortada a ±5)
+  - D: `Kd * (derivada del error)` (0 en el primer paso, sin salto de arranque)
+- [x] Conectar el lazo: `error = setpoint - v` → `pid.compute` → `plant.step` → repetir.
+- [x] Sliders para **Kp, Ki, Kd** conectados al estado (eventos `input`).
+- [x] La gráfica ahora muestra la respuesta a lazo cerrado hacia el setpoint.
+- [x] Botón para reiniciar la simulación (v=0, integral=0).
 
 **Fase 2 lista cuando:** con un PID razonable, la curva sube y se estabiliza en el objetivo.
 

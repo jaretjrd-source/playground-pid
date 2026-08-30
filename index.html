@@ -11,17 +11,27 @@
     <div id="app">
       <h1>Playground de control PID</h1>
       <p class="intro">
-        Fase 1: la planta sola (lazo abierto). Mueve la entrada <code>u</code> y
-        observa cómo la salida <code>v</code> la persigue con retraso.
+        Fase 2: lazo cerrado. El PID mide el error (objetivo − salida) y ajusta
+        la entrada <code>u</code> solo. Mueve <code>Kp</code>, <code>Ki</code> y
+        <code>Kd</code> y reinicia para ver el nuevo arranque.
       </p>
 
       <canvas id="grafica"></canvas>
 
       <div class="controles">
-        <label for="slider-u">
-          <span>Entrada <code>u</code>: <strong id="valor-u">0.00</strong></span>
-          <input type="range" id="slider-u" min="0" max="2" step="0.01" value="0" />
+        <label for="slider-kp">
+          <span>Kp — proporcional: <strong id="valor-kp">1.50</strong></span>
+          <input type="range" id="slider-kp" min="0" max="10" step="0.1" value="1.5" />
         </label>
+        <label for="slider-ki">
+          <span>Ki — integral: <strong id="valor-ki">0.80</strong></span>
+          <input type="range" id="slider-ki" min="0" max="5" step="0.05" value="0.8" />
+        </label>
+        <label for="slider-kd">
+          <span>Kd — derivativo: <strong id="valor-kd">0.08</strong></span>
+          <input type="range" id="slider-kd" min="0" max="2" step="0.01" value="0.08" />
+        </label>
+        <button type="button" id="btn-reiniciar">Reiniciar simulación</button>
       </div>
     </div>
 
