@@ -192,9 +192,9 @@ Meta: que se vea como algo terminado y de portafolio.
 
 - [x] `vite.config.js`: `base: '/playground-pid/'` (para GitHub Pages en subruta).
 - [x] `npm run build` genera `dist/` sin errores.
-- [~] Deploy a GitHub Pages con GitHub Actions (`.github/workflows/deploy.yml`).
-  Falta que Jaret active Pages en modo "GitHub Actions" en Settings del repo.
-- [ ] La URL pública abre y funciona (sin 404 en la consola).
+- [x] Deploy a GitHub Pages con GitHub Actions (`.github/workflows/deploy.yml`).
+- [x] La URL pública abre y funciona (sin 404 en la consola).
+  → https://jaretjrd-source.github.io/playground-pid/
 - [ ] Probarla en el teléfono y en otra computadora.
 - [ ] Agregar el proyecto al **portafolio** (`../Pagina_web`): nueva tarjeta en
   "Proyectos" con captura, descripción, enlace a la demo y al código (ES + EN).
@@ -232,5 +232,5 @@ Meta: el "poco de TypeScript".
 ## Notas del proyecto
 
 - **Repo de GitHub:** https://github.com/jaretjrd-source/playground-pid
-- **URL pública:** _(pendiente — Fase 7)_
+- **URL pública:** https://jaretjrd-source.github.io/playground-pid/
 - **Fecha de inicio:** 2026-08-29

@@ -5,7 +5,7 @@ App web interactiva para **entender el control PID jugando**: una planta simulad
 controlador PID, con deslizadores para `Kp`, `Ki`, `Kd`, presets, y una gráfica
 en vivo de la respuesta con sus métricas de desempeño.
 
-**Demo:** _(pendiente — GitHub Pages, Fase 7)_
+**Demo:** https://jaretjrd-source.github.io/playground-pid/
 
 ![Captura del playground](docs/captura.png)
 
