@@ -1,56 +1,110 @@
+/* ─── Tokens de diseño ────────────────────────────────────────────────────────
+   Todos los colores, tipografía y espaciados salen de aquí. El modo oscuro solo
+   redefine los colores más abajo. */
 :root {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light dark;
 
-  --fondo: #ffffff;
-  --texto: #1a1a1a;
-  --panel: #f4f4f5;
-  --borde: #e0e0e2;
+  /* Tipografía */
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  --fuente-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas,
+    monospace;
+
+  /* Espaciado y formas */
+  --esp: 1rem;
+  --esp-sm: 0.5rem;
+  --radio: 10px;
+  --ancho-max: 960px;
+
+  /* Colores de interfaz (tema claro) */
+  --fondo: #fbfbfc;
+  --texto: #1b1d21;
+  --texto-suave: #5b6069;
+  --panel: #ffffff;
+  --borde: #e3e4e8;
   --foco: #2f6fed;
+
+  /* Colores de la gráfica (los lee plot.js) */
+  --plot-grid: rgba(20, 20, 25, 0.1);
+  --plot-setpoint: #b0870f;
+  --plot-traza: #1f8f3d;
+  --plot-banda: rgba(31, 143, 61, 0.13);
+  --plot-pico: #d9480f;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --fondo: #16181d;
-    --texto: #e8e8e8;
-    --panel: #22252c;
-    --borde: #33373f;
+    --fondo: #15171c;
+    --texto: #e7e8ea;
+    --texto-suave: #a2a7b0;
+    --panel: #1e2127;
+    --borde: #333844;
     --foco: #6ea8ff;
+
+    --plot-grid: rgba(255, 255, 255, 0.1);
+    --plot-setpoint: #f0c040;
+    --plot-traza: #4ec26f;
+    --plot-banda: rgba(78, 194, 111, 0.16);
+    --plot-pico: #ff8747;
   }
 }
 
+/* ─── Base ────────────────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  padding: var(--esp);
   background: var(--fondo);
   color: var(--texto);
-  line-height: 1.5;
+  font-family: var(--fuente);
+  line-height: 1.55;
 }
 
 #app {
-  max-width: 800px;
+  max-width: var(--ancho-max);
   margin: 0 auto;
-  padding: 1.5rem;
 }
 
 h1 {
-  font-size: 1.5rem;
-  margin: 0 0 0.5rem;
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
 }
 
 .intro {
-  margin: 0 0 1rem;
-  opacity: 0.8;
+  margin: 0.35rem 0 0;
+  color: var(--texto-suave);
+  max-width: 60ch;
 }
 
 code {
-  background: var(--panel);
-  padding: 0.1em 0.35em;
-  border-radius: 4px;
+  font-family: var(--fuente-mono);
   font-size: 0.9em;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  padding: 0.05em 0.3em;
+  border-radius: 5px;
+}
+
+.cabecera {
+  margin-bottom: var(--esp);
+}
+
+/* ─── Tablero: gráfica + panel de objetivo ────────────────────────────────── */
+.tablero {
+  display: grid;
+  gap: var(--esp);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .tablero {
+    grid-template-columns: 1fr minmax(220px, 260px);
+    align-items: start;
+  }
 }
 
 #grafica {
@@ -59,26 +113,67 @@ code {
   display: block;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 8px;
+  border-radius: var(--radio);
 }
 
+.leyenda {
+  list-style: none;
+  margin: var(--esp-sm) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+}
+
+.leyenda li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.muestra {
+  width: 18px;
+  flex: none;
+}
+
+.muestra--traza {
+  border-bottom: 3px solid var(--plot-traza);
+}
+
+.muestra--setpoint {
+  border-bottom: 3px dashed var(--plot-setpoint);
+}
+
+.muestra--pico {
+  border-bottom: 3px dashed var(--plot-pico);
+}
+
+.muestra--banda {
+  height: 14px;
+  background: var(--plot-banda);
+  border: 1px solid var(--plot-traza);
+}
+
+/* ─── Métricas ───────────────────────────────────────────────────────────── */
 .metricas {
-  margin: 1rem 0 0;
+  margin: var(--esp) 0 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.75rem;
+  gap: var(--esp-sm);
 }
 
 .metricas div {
   padding: 0.6rem 0.75rem;
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 8px;
+  border-radius: var(--radio);
 }
 
 .metricas dt {
-  font-size: 0.8rem;
-  opacity: 0.75;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
 }
 
 .metricas dd {
@@ -87,58 +182,92 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+/* ─── Controles ──────────────────────────────────────────────────────────── */
 .controles {
-  margin-top: 1rem;
-  display: grid;
-  gap: 1rem;
+  margin-top: var(--esp);
 }
 
-.controles fieldset {
+fieldset {
   margin: 0;
-  padding: 1rem;
+  padding: var(--esp);
   background: var(--panel);
   border: 1px solid var(--borde);
-  border-radius: 8px;
+  border-radius: var(--radio);
 }
 
-.controles legend {
+legend {
   padding: 0 0.4rem;
   font-weight: 600;
 }
 
-.controles label {
+label {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
   margin-bottom: 0.9rem;
 }
 
-.controles input[type="range"] {
+label:last-of-type {
+  margin-bottom: 0;
+}
+
+input[type="range"] {
   width: 100%;
+  accent-color: var(--foco);
 }
 
 .botones {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--esp-sm);
+  margin-top: var(--esp);
+}
+
+.panel-objetivo .botones {
+  flex-direction: column;
 }
 
 button {
   font: inherit;
   padding: 0.45rem 0.9rem;
   border: 1px solid var(--borde);
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--fondo);
   color: var(--texto);
   cursor: pointer;
 }
 
 button:hover {
-  border-color: currentColor;
+  border-color: var(--texto-suave);
 }
 
 button:focus-visible,
 input[type="range"]:focus-visible {
   outline: 2px solid var(--foco);
   outline-offset: 2px;
+}
+
+/* ─── Glosario P / I / D ──────────────────────────────────────────────────── */
+.glosario {
+  margin: var(--esp) 0 0;
+  display: grid;
+  gap: var(--esp-sm);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.glosario div {
+  padding: 0.6rem 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+.glosario dt {
+  font-weight: 600;
+}
+
+.glosario dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.88rem;
+  color: var(--texto-suave);
 }

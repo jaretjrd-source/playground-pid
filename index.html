@@ -4,19 +4,49 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Playground interactivo de control PID: ajusta Kp, Ki y Kd y observa la respuesta de una planta en vivo." />
+    <meta
+      name="description"
+      content="Playground interactivo de control PID: ajusta Kp, Ki y Kd y observa en vivo el sobrepaso, los tiempos y el error de una planta de primer orden."
+    />
     <title>Playground de control PID</title>
   </head>
   <body>
     <div id="app">
-      <h1>Playground de control PID</h1>
-      <p class="intro">
-        Fase 4: métricas. Ajusta las ganancias y mira cómo cambian el sobrepaso,
-        los tiempos y el error. La franja verde es la tolerancia de ±2 %; la
-        línea naranja punteada marca el pico de sobrepaso.
-      </p>
+      <header class="cabecera">
+        <h1>Playground de control PID</h1>
+        <p class="intro">
+          Una planta de primer orden (como la velocidad de un motor) controlada
+          por un PID. Ajusta las ganancias y observa cómo persigue el objetivo.
+        </p>
+      </header>
 
-      <canvas id="grafica"></canvas>
+      <div class="tablero">
+        <section class="panel-grafica">
+          <canvas id="grafica"></canvas>
+          <ul class="leyenda">
+            <li><span class="muestra muestra--traza"></span> salida <code>v</code></li>
+            <li><span class="muestra muestra--setpoint"></span> objetivo (setpoint)</li>
+            <li><span class="muestra muestra--banda"></span> tolerancia ±2 %</li>
+            <li><span class="muestra muestra--pico"></span> pico de sobrepaso</li>
+          </ul>
+        </section>
+
+        <aside class="panel-objetivo">
+          <fieldset>
+            <legend>Objetivo</legend>
+
+            <label for="slider-sp">
+              <span>Setpoint: <strong id="valor-sp">1.00</strong></span>
+              <input type="range" id="slider-sp" min="0.3" max="1.5" step="0.05" value="1" />
+            </label>
+
+            <div class="botones">
+              <button type="button" id="btn-escalon">Nuevo escalón</button>
+              <button type="button" id="btn-reiniciar">Reiniciar simulación</button>
+            </div>
+          </fieldset>
+        </aside>
+      </div>
 
       <dl class="metricas">
         <div>
@@ -37,7 +67,7 @@
         </div>
       </dl>
 
-      <div class="controles">
+      <section class="controles">
         <fieldset>
           <legend>Ganancias del PID</legend>
 
@@ -62,20 +92,24 @@
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>Objetivo</legend>
-
-          <label for="slider-sp">
-            <span>Setpoint: <strong id="valor-sp">1.00</strong></span>
-            <input type="range" id="slider-sp" min="0.3" max="1.5" step="0.05" value="1" />
-          </label>
-
-          <div class="botones">
-            <button type="button" id="btn-escalon">Nuevo escalón</button>
-            <button type="button" id="btn-reiniciar">Reiniciar simulación</button>
+        <dl class="glosario">
+          <div>
+            <dt>P — proporcional</dt>
+            <dd>Reacciona al error de ahora. Más Kp = más rápido, pero solo con P
+              queda un error permanente.</dd>
           </div>
-        </fieldset>
-      </div>
+          <div>
+            <dt>I — integral</dt>
+            <dd>Acumula el error pasado y lo borra por completo. De más, hace que
+              la respuesta se pase y oscile.</dd>
+          </div>
+          <div>
+            <dt>D — derivativo</dt>
+            <dd>Mira qué tan rápido cambia el error y frena de antemano. Amortigua
+              el sobrepaso; de más, se vuelve sensible al ruido.</dd>
+          </div>
+        </dl>
+      </section>
     </div>
 
     <script type="module" src="/src/main.js"></script>

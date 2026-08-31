@@ -56,7 +56,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 - [x] Fase 2 — El controlador PID (lazo cerrado)
 - [x] Fase 3 — Controles e interacción
 - [x] Fase 4 — Métricas de desempeño
-- [ ] Fase 5 — Pulido visual y UX
+- [x] Fase 5 — Pulido visual y UX
 - [ ] Fase 6 — Calidad de código y README
 - [ ] Fase 7 — Publicar y enlazar desde el portafolio
 - [ ] Fase 8 — Migrar a TypeScript
@@ -155,13 +155,18 @@ Meta: números que expliquen qué tan bueno es el ajuste.
 
 Meta: que se vea como algo terminado y de portafolio.
 
-- [ ] Variables CSS (`:root`) para colores, tipografía y espaciados.
-- [ ] Tipografía elegida y jerarquía clara.
-- [ ] Modo oscuro (`prefers-color-scheme`) — la gráfica debe leer bien en ambos.
-- [ ] Layout ordenado (gráfica arriba, controles agrupados, métricas visibles).
-- [ ] Textos cortos que expliquen qué hace cada término (P, I, D).
-- [ ] Leyenda de la gráfica (qué es la línea punteada, qué es la traza).
-- [ ] `favicon`, `<title>` y `<meta name="description">`.
+- [x] Variables CSS (`:root`) para colores, tipografía y espaciados.
+- [x] Tipografía elegida y jerarquía clara. (Se usa la fuente del sistema a
+  propósito: nativa, sin descarga ni salto de maquetación.)
+- [x] Modo oscuro (`prefers-color-scheme`) — la gráfica lee sus colores de
+  variables CSS (`--plot-*`), así que cambia sola con el tema.
+- [x] Layout ordenado. El panel "Objetivo" (setpoint + reiniciar) va al costado
+  de la gráfica en pantallas anchas (≥720 px) para no tener que bajar a
+  reiniciar; en móvil se apila.
+- [x] Textos cortos que expliquen qué hace cada término (P, I, D). (Glosario.)
+- [x] Leyenda de la gráfica (traza, setpoint, banda ±2 %, pico).
+- [x] `favicon` propio (curva de respuesta al escalón), `<title>` y
+  `<meta name="description">`.
 
 **Fase 5 lista cuando:** en una laptop se ve pulido y se entiende sin explicación.
 
