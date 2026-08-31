@@ -2,10 +2,12 @@ import './style.css'
 import { createState, step } from './plant.js'
 import { createPid, compute, reset } from './pid.js'
 import { createPlot, MAX_PUNTOS } from './plot.js'
+import { calcularMetricas } from './metrics.js'
 
 // ─── Configuración de la simulación ───────────────────────────────────────────
-const DT = 0.03        // paso de tiempo fijo, en segundos
-const TAU = 1.5        // constante de tiempo de la planta
+const DT = 0.03            // paso de tiempo fijo, en segundos
+const TAU = 1.5            // constante de tiempo de la planta
+const VENTANA = MAX_PUNTOS * DT // segundos que abarca la gráfica
 
 // Ganancias predefinidas. Cada preset enseña un comportamiento distinto:
 //   p   → solo P: rápido pero deja error permanente (no llega al objetivo)
@@ -31,14 +33,20 @@ let planta = createState(TAU)
 const pid = createPid(PRESETS.pid)
 let setpoint = 1
 const historial = []
+let marcas = {} // { banda, pico } para dibujar en la gráfica; lo pone actualizarMetricas()
 
 // ─── Núcleo de la simulación ─────────────────────────────────────────────────
-// Un paso del lazo cerrado: error → PID → planta → guardar.
-function pasoSimulacion() {
-  const error = setpoint - planta.v
-  const u = compute(pid, error, DT)
-  planta = step(planta, u, DT)
+// Un paso del lazo cerrado sobre un estado dado. `compute` modifica el
+// controlador; `step` devuelve un estado de planta nuevo.
+function avanzar(estadoPlanta, controlador) {
+  const error = setpoint - estadoPlanta.v
+  const u = compute(controlador, error, DT)
+  return step(estadoPlanta, u, DT)
+}
 
+// Avanza la simulación "en vivo" un paso y la guarda en el historial rodante.
+function pasoSimulacion() {
+  planta = avanzar(planta, pid)
   historial.push(planta.v)
   if (historial.length > MAX_PUNTOS) {
     historial.shift()
@@ -51,20 +59,59 @@ function reiniciar() {
   historial.length = 0
 }
 
-// Modo estático: reinicia y corre la simulación entera en un bucle, sin animar.
-function recalcularEstatico() {
-  reiniciar()
+// Corre una respuesta al escalón COMPLETA y fresca (desde v=0, integral=0) con
+// las ganancias actuales, sin tocar el estado en vivo. Sirve para las métricas
+// y para el dibujo estático.
+function simularRespuesta() {
+  let p = createState(TAU)
+  const c = createPid(pid) // copia Kp/Ki/Kd; su integral arranca en 0
+  const salida = []
   for (let i = 0; i < MAX_PUNTOS; i++) {
-    pasoSimulacion()
+    p = avanzar(p, c)
+    salida.push(p.v)
   }
-  plot.draw(historial, setpoint)
+  return salida
 }
 
-// Se llama tras CUALQUIER cambio de parámetro. En modo animado no hace falta
-// nada (el bucle ya usa los valores nuevos); en modo estático hay que redibujar.
+// ─── Métricas ────────────────────────────────────────────────────────────────
+const celdas = {
+  sobrepaso: document.querySelector('#m-sobrepaso'),
+  subida: document.querySelector('#m-subida'),
+  establecimiento: document.querySelector('#m-establecimiento'),
+  error: document.querySelector('#m-error'),
+}
+
+function mostrarMetricas(m) {
+  celdas.sobrepaso.textContent = m.alcanzaObjetivo
+    ? `${m.sobrepaso.toFixed(1)} %`
+    : '—'
+  celdas.subida.textContent =
+    m.tSubida != null ? `${m.tSubida.toFixed(2)} s` : '—'
+  celdas.establecimiento.textContent =
+    m.tEstablecimiento != null
+      ? `${m.tEstablecimiento.toFixed(2)} s`
+      : `> ${VENTANA.toFixed(0)} s`
+  const pct = (m.errorEE / setpoint) * 100
+  celdas.error.textContent = `${m.errorEE.toFixed(3)} (${pct.toFixed(1)} %)`
+}
+
+// Recalcula métricas + marcas de la gráfica. Devuelve la respuesta simulada
+// (útil para el dibujo estático).
+function actualizarMetricas() {
+  const respuesta = simularRespuesta()
+  const m = calcularMetricas(respuesta, setpoint, DT)
+  mostrarMetricas(m)
+  marcas = { banda: m.banda, pico: m.sobrepaso > 0 ? m.vPico : null }
+  return respuesta
+}
+
+// Se llama tras CUALQUIER cambio de parámetro.
 function alCambiarParametro() {
+  const respuesta = actualizarMetricas()
   if (prefiereMenosMovimiento) {
-    recalcularEstatico()
+    reiniciar()
+    historial.push(...respuesta)
+    plot.draw(historial, setpoint, marcas)
   }
 }
 
@@ -128,17 +175,17 @@ document.querySelector('#btn-reiniciar').addEventListener('click', () => {
 window.addEventListener('resize', () => {
   plot.resize()
   if (prefiereMenosMovimiento) {
-    plot.draw(historial, setpoint)
+    plot.draw(historial, setpoint, marcas)
   }
 })
 
 // ─── Arranque ────────────────────────────────────────────────────────────────
-if (prefiereMenosMovimiento) {
-  recalcularEstatico()
-} else {
+alCambiarParametro() // primera métrica (y primer dibujo si es estático)
+
+if (!prefiereMenosMovimiento) {
   const frame = () => {
     pasoSimulacion()
-    plot.draw(historial, setpoint)
+    plot.draw(historial, setpoint, marcas)
     requestAnimationFrame(frame)
   }
   requestAnimationFrame(frame)

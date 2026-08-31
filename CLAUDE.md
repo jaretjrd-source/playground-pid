@@ -55,7 +55,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 - [x] Fase 1 — La planta (simulación a lazo abierto)
 - [x] Fase 2 — El controlador PID (lazo cerrado)
 - [x] Fase 3 — Controles e interacción
-- [ ] Fase 4 — Métricas de desempeño
+- [x] Fase 4 — Métricas de desempeño
 - [ ] Fase 5 — Pulido visual y UX
 - [ ] Fase 6 — Calidad de código y README
 - [ ] Fase 7 — Publicar y enlazar desde el portafolio
@@ -141,11 +141,11 @@ Meta: que se sienta un "playground".
 
 Meta: números que expliquen qué tan bueno es el ajuste.
 
-- [ ] Calcular y mostrar: **sobrepaso (%)**, **tiempo de subida**, **tiempo de
+- [x] Calcular y mostrar: **sobrepaso (%)**, **tiempo de subida**, **tiempo de
   establecimiento (±2 %)**, **error en estado estable**.
-- [ ] Marcar en la gráfica: línea del pico de sobrepaso y banda de ±2 % alrededor
+- [x] Marcar en la gráfica: línea del pico de sobrepaso y banda de ±2 % alrededor
   del setpoint.
-- [ ] Que las métricas se actualicen cuando cambian los parámetros.
+- [x] Que las métricas se actualicen cuando cambian los parámetros.
 
 **Fase 4 lista cuando:** al ajustar el PID, veo cómo mejoran o empeoran las métricas.
 

@@ -56,6 +56,27 @@ export function createPlot(canvas) {
     }
   }
 
+  // Banda de tolerancia de ±2 % alrededor del setpoint (relleno suave).
+  function dibujarBanda(setpoint, semiancho) {
+    const yArriba = yPix(setpoint + semiancho);
+    const yAbajo = yPix(setpoint - semiancho);
+    ctx.fillStyle = 'rgba(47, 158, 68, 0.15)';
+    ctx.fillRect(0, yArriba, ancho, yAbajo - yArriba);
+  }
+
+  // Línea horizontal en el valor del pico de sobrepaso.
+  function dibujarPico(valor) {
+    ctx.strokeStyle = '#e8590c';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    const y = yPix(valor);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(ancho, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
   function dibujarSetpoint(setpoint) {
     ctx.strokeStyle = '#e0a020';
     ctx.lineWidth = 1.5;
@@ -91,11 +112,15 @@ export function createPlot(canvas) {
    * Redibuja toda la gráfica.
    * @param {number[]} historial  valores de `v`, del más viejo al más nuevo
    * @param {number}   setpoint   valor objetivo (línea punteada)
+   * @param {{banda?: number, pico?: number|null}} [marcas]  adornos opcionales:
+   *        `banda` = semiancho de la franja de ±2 %; `pico` = valor del sobrepaso
    */
-  function draw(historial, setpoint) {
+  function draw(historial, setpoint, marcas = {}) {
     ctx.clearRect(0, 0, ancho, alto);
     dibujarGrid();
+    if (marcas.banda) dibujarBanda(setpoint, marcas.banda);
     dibujarSetpoint(setpoint);
+    if (marcas.pico != null) dibujarPico(marcas.pico);
     dibujarTraza(historial);
   }
 

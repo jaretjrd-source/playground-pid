@@ -11,11 +11,31 @@
     <div id="app">
       <h1>Playground de control PID</h1>
       <p class="intro">
-        Fase 3: un playground. Ajusta las ganancias, prueba un preset, cambia el
-        objetivo y observa cómo responde el lazo cerrado.
+        Fase 4: métricas. Ajusta las ganancias y mira cómo cambian el sobrepaso,
+        los tiempos y el error. La franja verde es la tolerancia de ±2 %; la
+        línea naranja punteada marca el pico de sobrepaso.
       </p>
 
       <canvas id="grafica"></canvas>
+
+      <dl class="metricas">
+        <div>
+          <dt>Sobrepaso</dt>
+          <dd id="m-sobrepaso">—</dd>
+        </div>
+        <div>
+          <dt>Tiempo de subida (10–90 %)</dt>
+          <dd id="m-subida">—</dd>
+        </div>
+        <div>
+          <dt>Tiempo de establecimiento (±2 %)</dt>
+          <dd id="m-establecimiento">—</dd>
+        </div>
+        <div>
+          <dt>Error en estado estable</dt>
+          <dd id="m-error">—</dd>
+        </div>
+      </dl>
 
       <div class="controles">
         <fieldset>
