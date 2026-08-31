@@ -190,9 +190,10 @@ Meta: que se vea como algo terminado y de portafolio.
 
 ## Fase 7 — Publicar y enlazar desde el portafolio
 
-- [ ] `vite.config.js`: `base: '/playground-pid/'` (para GitHub Pages en subruta).
-- [ ] `npm run build` genera `dist/` sin errores.
-- [ ] Deploy a GitHub Pages (rama `gh-pages` con la carpeta `dist`, o Action de Pages).
+- [x] `vite.config.js`: `base: '/playground-pid/'` (para GitHub Pages en subruta).
+- [x] `npm run build` genera `dist/` sin errores.
+- [~] Deploy a GitHub Pages con GitHub Actions (`.github/workflows/deploy.yml`).
+  Falta que Jaret active Pages en modo "GitHub Actions" en Settings del repo.
 - [ ] La URL pública abre y funciona (sin 404 en la consola).
 - [ ] Probarla en el teléfono y en otra computadora.
 - [ ] Agregar el proyecto al **portafolio** (`../Pagina_web`): nueva tarjeta en
