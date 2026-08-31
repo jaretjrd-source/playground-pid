@@ -57,7 +57,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 - [x] Fase 3 — Controles e interacción
 - [x] Fase 4 — Métricas de desempeño
 - [x] Fase 5 — Pulido visual y UX
-- [ ] Fase 6 — Calidad de código y README
+- [~] Fase 6 — Calidad de código y README (falta Lighthouse ≥ 90, tras el deploy)
 - [ ] Fase 7 — Publicar y enlazar desde el portafolio
 - [ ] Fase 8 — Migrar a TypeScript
 - [ ] Fase 9 — Extras (opcional)
@@ -174,13 +174,15 @@ Meta: que se vea como algo terminado y de portafolio.
 
 ## Fase 6 — Calidad de código y README
 
-- [ ] Todo en módulos con nombres claros; sin repetir bloques.
-- [ ] Nada de `var`; sin variables globales innecesarias.
-- [ ] Consola del navegador limpia (sin errores ni `console.log` olvidados).
-- [ ] Código muerto eliminado.
-- [ ] `README.md` del repo: qué es, cómo correrlo (`npm install` / `npm run dev`),
-  captura o GIF, y qué aprendí.
-- [ ] Lighthouse (tras el deploy) ≥ 90 en las 4 categorías.
+- [x] Todo en módulos con nombres claros; sin repetir bloques. (Helper
+  `reiniciarYActualizar` y `lineaHorizontal` quitan la repetición.)
+- [x] Nada de `var`; sin variables globales innecesarias. (Todo vive en el
+  scope del módulo `main.js`.)
+- [x] Consola del navegador limpia (sin errores ni `console.log` olvidados).
+- [x] Código muerto eliminado. `.gitattributes` normaliza los finales de línea.
+- [x] `README.md` del repo: qué es, cómo correrlo (`npm install` / `npm run dev`),
+  captura o GIF, y qué aprendí. (La captura se añade en la Fase 7 tras el deploy.)
+- [ ] Lighthouse (tras el deploy) ≥ 90 en las 4 categorías. → se hace en la Fase 7.
 
 **Fase 6 lista cuando:** otra persona clona el repo, lo corre y entiende el código.
 

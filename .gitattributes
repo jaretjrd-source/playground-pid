@@ -1,0 +1,2 @@
+# Normaliza los finales de línea: en el repo siempre LF, en disco lo que toque.
+* text=auto eol=lf

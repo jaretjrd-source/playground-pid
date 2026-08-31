@@ -33,7 +33,7 @@ let planta = createState(TAU)
 const pid = createPid(PRESETS.pid)
 let setpoint = 1
 const historial = []
-let marcas = {} // { banda, pico } para dibujar en la gráfica; lo pone actualizarMetricas()
+let marcas = {} // { banda, pico } para dibujar en la gráfica; lo pone alCambiarParametro()
 
 // ─── Núcleo de la simulación ─────────────────────────────────────────────────
 // Un paso del lazo cerrado sobre un estado dado. `compute` modifica el
@@ -81,38 +81,44 @@ const celdas = {
   error: document.querySelector('#m-error'),
 }
 
-function mostrarMetricas(m) {
-  celdas.sobrepaso.textContent = m.alcanzaObjetivo
-    ? `${m.sobrepaso.toFixed(1)} %`
+function mostrarMetricas(metricas) {
+  celdas.sobrepaso.textContent = metricas.alcanzaObjetivo
+    ? `${metricas.sobrepaso.toFixed(1)} %`
     : '—'
   celdas.subida.textContent =
-    m.tSubida != null ? `${m.tSubida.toFixed(2)} s` : '—'
+    metricas.tSubida != null ? `${metricas.tSubida.toFixed(2)} s` : '—'
   celdas.establecimiento.textContent =
-    m.tEstablecimiento != null
-      ? `${m.tEstablecimiento.toFixed(2)} s`
+    metricas.tEstablecimiento != null
+      ? `${metricas.tEstablecimiento.toFixed(2)} s`
       : `> ${VENTANA.toFixed(0)} s`
-  const pct = (m.errorEE / setpoint) * 100
-  celdas.error.textContent = `${m.errorEE.toFixed(3)} (${pct.toFixed(1)} %)`
+  const pct = (metricas.errorEE / setpoint) * 100
+  celdas.error.textContent =
+    `${metricas.errorEE.toFixed(3)} (${pct.toFixed(1)} %)`
 }
 
-// Recalcula métricas + marcas de la gráfica. Devuelve la respuesta simulada
-// (útil para el dibujo estático).
-function actualizarMetricas() {
-  const respuesta = simularRespuesta()
-  const m = calcularMetricas(respuesta, setpoint, DT)
-  mostrarMetricas(m)
-  marcas = { banda: m.banda, pico: m.sobrepaso > 0 ? m.vPico : null }
-  return respuesta
-}
-
-// Se llama tras CUALQUIER cambio de parámetro.
+// Se llama tras CUALQUIER cambio de parámetro: recalcula las métricas y las
+// marcas de la gráfica y, en modo estático, redibuja la respuesta completa.
 function alCambiarParametro() {
-  const respuesta = actualizarMetricas()
+  const respuesta = simularRespuesta()
+  const metricas = calcularMetricas(respuesta, setpoint, DT)
+  mostrarMetricas(metricas)
+  marcas = {
+    banda: metricas.banda,
+    pico: metricas.sobrepaso > 0 ? metricas.vPico : null,
+  }
+
   if (prefiereMenosMovimiento) {
     reiniciar()
     historial.push(...respuesta)
     plot.draw(historial, setpoint, marcas)
   }
+}
+
+// Reinicia la simulación y refresca métricas/dibujo. Se usa tras un preset, un
+// nuevo escalón o el botón de reiniciar.
+function reiniciarYActualizar() {
+  reiniciar()
+  alCambiarParametro()
 }
 
 // ─── Controles ───────────────────────────────────────────────────────────────
@@ -153,25 +159,20 @@ function aplicarPreset(nombre) {
   sliderKp.set(g.Kp)
   sliderKi.set(g.Ki)
   sliderKd.set(g.Kd)
-  reiniciar()
-  alCambiarParametro()
+  reiniciarYActualizar()
 }
 
 function nuevoEscalon() {
   const aleatorio = 0.3 + Math.random() * 1.2 // entre 0.3 y 1.5
   sliderSp.set(Math.round(aleatorio / 0.05) * 0.05)
-  reiniciar()
-  alCambiarParametro()
+  reiniciarYActualizar()
 }
 
 document.querySelectorAll('[data-preset]').forEach((boton) => {
   boton.addEventListener('click', () => aplicarPreset(boton.dataset.preset))
 })
 document.querySelector('#btn-escalon').addEventListener('click', nuevoEscalon)
-document.querySelector('#btn-reiniciar').addEventListener('click', () => {
-  reiniciar()
-  alCambiarParametro()
-})
+document.querySelector('#btn-reiniciar').addEventListener('click', reiniciarYActualizar)
 window.addEventListener('resize', () => {
   plot.resize()
   if (prefiereMenosMovimiento) {
