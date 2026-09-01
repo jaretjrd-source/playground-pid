@@ -61,7 +61,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 - [x] Fase 6 — Calidad de código y README
 - [x] Fase 7 — Publicar y enlazar desde el portafolio
 - [x] Fase 8 — Migrar a TypeScript
-- [ ] Fase 9 — Extras (opcional)
+- [~] Fase 9 — Extras (2.º orden y perturbaciones hechos; resto sin hacer)
 
 ---
 
@@ -229,11 +229,15 @@ Meta: el "poco de TypeScript".
 
 ## Fase 9 — Extras (opcional)
 
-- [ ] Planta de **segundo orden** (con oscilación propia) como opción.
+- [x] Planta de **segundo orden** (con oscilación propia) como opción.
+  `PlantState` es unión discriminada `FirstOrderState | SecondOrderState`;
+  `<select id="sel-planta">` en el panel Objetivo. `wn=2`, `zeta=0.3`.
+- [x] **Perturbaciones**: botón "Perturbar" que resta 0.3 a `planta.v` en vivo
+  (deshabilitado en modo `prefers-reduced-motion`).
 - [ ] **Ruido** en la medición + un filtro simple para la parte derivativa.
-- [ ] **Perturbaciones**: un botón que "empuja" al sistema y ver cómo el PID lo corrige.
-- [ ] Exportar la gráfica como imagen (`canvas.toDataURL`).
-- [ ] Comparar dos ajustes lado a lado.
+  (No hecho — Jaret eligió solo 2.º orden y perturbaciones.)
+- [ ] Exportar la gráfica como imagen (`canvas.toDataURL`). (No hecho.)
+- [ ] Comparar dos ajustes lado a lado. (No hecho.)
 
 ---
 

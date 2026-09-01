@@ -11,10 +11,15 @@ en vivo de la respuesta con sus métricas de desempeño.
 
 ## Qué hace
 
-- **Planta de primer orden** `dv/dt = (u - v) / tau` integrada con Euler.
+- **Dos plantas** integradas con Euler:
+  - **Primer orden** `dv/dt = (u - v) / tau` — como la velocidad de un motor.
+  - **Segundo orden** `v'' = wn²(u - v) - 2·zeta·wn·v'` — como la posición de un
+    motor; con `zeta < 1` oscila por sí sola.
 - **Lazo cerrado**: `error = setpoint - v` → PID → entrada `u` → planta → repetir.
 - Deslizadores para **Kp, Ki, Kd** y para el **setpoint**, con su valor numérico.
 - **Presets**: _Solo P_, _PI_, _PID ajustado_, _Ki muy alto (oscila)_.
+- Botón **Perturbar**: mete un "golpe" a la salida en vivo para ver al PID
+  rechazar la perturbación.
 - **Métricas** que se recalculan al vuelo: sobrepaso (%), tiempo de subida
   (10–90 %), tiempo de establecimiento (±2 %) y error en estado estable.
 - La gráfica marca la **banda de ±2 %** y el **pico de sobrepaso**.
@@ -63,6 +68,9 @@ puras y se pueden probar sin navegador.
   notó: el compilador obliga a manejar los casos `null` (`getContext`,
   `querySelector`) que en JS pasaban desapercibidos, y `satisfies` + `keyof`
   hacen que los presets no acepten un nombre inventado.
+- **Uniones discriminadas**: `PlantState` es `FirstOrderState | SecondOrderState`,
+  cada una con un campo `tipo`; `step()` hace `switch` sobre `tipo` y TS sabe qué
+  campos existen en cada rama.
 
 ## Stack
 

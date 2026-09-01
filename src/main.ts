@@ -1,12 +1,20 @@
 import './style.css'
-import { createState, step, type PlantState } from './plant'
+import {
+  createFirstOrder,
+  createSecondOrder,
+  step,
+  type PlantState,
+} from './plant'
 import { createPid, compute, reset, type PidGains, type PidState } from './pid'
 import { createPlot, MAX_PUNTOS, type Marcas } from './plot'
 import { calcularMetricas, type Metricas } from './metrics'
 
 // ─── Configuración de la simulación ───────────────────────────────────────────
 const DT = 0.03            // paso de tiempo fijo, en segundos
-const TAU = 1.5            // constante de tiempo de la planta
+const TAU = 1.5            // constante de tiempo de la planta de primer orden
+const WN = 2               // frecuencia natural de la planta de segundo orden
+const ZETA = 0.3           // amortiguamiento (zeta < 1 → oscila sola)
+const PERTURBACION = 0.3   // "golpe" que resta el botón Perturbar
 const VENTANA = MAX_PUNTOS * DT // segundos que abarca la gráfica
 
 // Ganancias predefinidas. Cada preset enseña un comportamiento distinto:
@@ -39,12 +47,22 @@ function requerido<T extends Element>(selector: string): T {
 }
 
 // ─── Estado ──────────────────────────────────────────────────────────────────
+type TipoPlanta = 'primer' | 'segundo'
+
 const plot = createPlot(requerido<HTMLCanvasElement>('#grafica'))
-let planta: PlantState = createState(TAU)
+let tipoPlanta: TipoPlanta = 'primer'
+let planta: PlantState = crearPlanta()
 const pid = createPid(PRESETS.pid)
 let setpoint = 1
 const historial: number[] = []
 let marcas: Marcas = {} // lo pone alCambiarParametro()
+
+// Crea una planta nueva del tipo elegido ahora mismo.
+function crearPlanta(): PlantState {
+  return tipoPlanta === 'primer'
+    ? createFirstOrder(TAU)
+    : createSecondOrder(WN, ZETA)
+}
 
 // ─── Núcleo de la simulación ─────────────────────────────────────────────────
 // Un paso del lazo cerrado sobre un estado dado. `compute` modifica el
@@ -65,7 +83,7 @@ function pasoSimulacion() {
 }
 
 function reiniciar() {
-  planta = createState(TAU)
+  planta = crearPlanta()
   reset(pid)
   historial.length = 0
 }
@@ -74,7 +92,7 @@ function reiniciar() {
 // las ganancias actuales, sin tocar el estado en vivo. Sirve para las métricas
 // y para el dibujo estático.
 function simularRespuesta(): number[] {
-  let p = createState(TAU)
+  let p = crearPlanta()
   const c = createPid(pid) // copia Kp/Ki/Kd; su integral arranca en 0
   const salida: number[] = []
   for (let i = 0; i < MAX_PUNTOS; i++) {
@@ -193,10 +211,30 @@ document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((boton) =>
   const nombre = boton.dataset.preset as NombrePreset
   boton.addEventListener('click', () => aplicarPreset(nombre))
 })
+
+const selPlanta = requerido<HTMLSelectElement>('#sel-planta')
+selPlanta.addEventListener('change', () => {
+  tipoPlanta = selPlanta.value as TipoPlanta
+  reiniciarYActualizar()
+})
+
 requerido<HTMLButtonElement>('#btn-escalon')
   .addEventListener('click', nuevoEscalon)
 requerido<HTMLButtonElement>('#btn-reiniciar')
   .addEventListener('click', reiniciarYActualizar)
+
+// Perturbar: un "golpe" a la salida en vivo para ver al PID corregirlo.
+// Solo tiene sentido con la animación andando (en modo estático no hay
+// simulación en curso que empujar).
+const btnPerturbar = requerido<HTMLButtonElement>('#btn-perturbar')
+if (prefiereMenosMovimiento) {
+  btnPerturbar.disabled = true
+  btnPerturbar.title = 'Disponible solo con la animación activada'
+} else {
+  btnPerturbar.addEventListener('click', () => {
+    planta.v -= PERTURBACION
+  })
+}
 window.addEventListener('resize', () => {
   plot.resize()
   if (prefiereMenosMovimiento) {

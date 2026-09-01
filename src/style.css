@@ -216,6 +216,26 @@ input[type="range"] {
   accent-color: var(--foco);
 }
 
+select {
+  font: inherit;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--borde);
+  border-radius: 7px;
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+select:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .botones {
   display: flex;
   flex-wrap: wrap;
