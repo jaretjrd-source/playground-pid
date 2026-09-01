@@ -19,12 +19,32 @@ const COLOR_POR_DEFECTO = {
   pico: '#e8590c',
 };
 
+/** Adornos opcionales de la gráfica. */
+export interface Marcas {
+  /** Semiancho de la franja de ±2 %. */
+  banda?: number;
+  /** Valor del pico de sobrepaso, o null si no hay. */
+  pico?: number | null;
+}
+
+/** Lo que `createPlot` devuelve para usar desde el bucle principal. */
+export interface Plot {
+  draw(historial: number[], setpoint: number, marcas?: Marcas): void;
+  resize(): void;
+}
+
 /**
  * Prepara la gráfica sobre un canvas concreto.
- * Devuelve { draw, resize } para usar desde el bucle principal.
  */
-export function createPlot(canvas) {
-  const ctx = canvas.getContext('2d');
+export function createPlot(canvas: HTMLCanvasElement): Plot {
+  // getContext puede devolver null. Comprobamos una vez y a partir de aquí
+  // usamos `ctx`, cuyo tipo ya NO incluye null (TS no arrastra el `if` de
+  // arriba hasta las funciones internas, por eso le damos un nombre nuevo).
+  const contexto = canvas.getContext('2d');
+  if (contexto === null) {
+    throw new Error('Este navegador no soporta canvas 2D');
+  }
+  const ctx = contexto;
 
   // Tamaño del canvas en píxeles CSS (no en píxeles físicos).
   let ancho = 0;
@@ -35,7 +55,7 @@ export function createPlot(canvas) {
   // calculado por dibujo.
   function colores() {
     const estilo = getComputedStyle(canvas);
-    const leer = (nombre, fallback) =>
+    const leer = (nombre: string, fallback: string) =>
       estilo.getPropertyValue(nombre).trim() || fallback;
     return {
       grid: leer('--plot-grid', COLOR_POR_DEFECTO.grid),
@@ -64,12 +84,12 @@ export function createPlot(canvas) {
 
   // Convierte un valor de la planta (eje Y) a una coordenada en píxeles.
   // Y crece hacia abajo en el canvas, por eso restamos.
-  function yPix(valor) {
+  function yPix(valor: number): number {
     const t = (valor - Y_MIN) / (Y_MAX - Y_MIN); // 0 abajo … 1 arriba
     return alto - t * alto;
   }
 
-  function lineaHorizontal(valor) {
+  function lineaHorizontal(valor: number) {
     const y = yPix(valor);
     ctx.beginPath();
     ctx.moveTo(0, y);
@@ -77,7 +97,7 @@ export function createPlot(canvas) {
     ctx.stroke();
   }
 
-  function dibujarGrid(color) {
+  function dibujarGrid(color: string) {
     ctx.strokeStyle = color;
     ctx.lineWidth = 1;
     for (let v = 0; v <= 2; v += 0.5) {
@@ -86,14 +106,14 @@ export function createPlot(canvas) {
   }
 
   // Banda de tolerancia de ±2 % alrededor del setpoint (relleno suave).
-  function dibujarBanda(setpoint, semiancho, color) {
+  function dibujarBanda(setpoint: number, semiancho: number, color: string) {
     const yArriba = yPix(setpoint + semiancho);
     const yAbajo = yPix(setpoint - semiancho);
     ctx.fillStyle = color;
     ctx.fillRect(0, yArriba, ancho, yAbajo - yArriba);
   }
 
-  function dibujarSetpoint(setpoint, color) {
+  function dibujarSetpoint(setpoint: number, color: string) {
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([6, 6]);
@@ -102,7 +122,7 @@ export function createPlot(canvas) {
   }
 
   // Línea horizontal en el valor del pico de sobrepaso.
-  function dibujarPico(valor, color) {
+  function dibujarPico(valor: number, color: string) {
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([4, 4]);
@@ -110,7 +130,7 @@ export function createPlot(canvas) {
     ctx.setLineDash([]);
   }
 
-  function dibujarTraza(historial, color) {
+  function dibujarTraza(historial: number[], color: string) {
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -131,12 +151,11 @@ export function createPlot(canvas) {
 
   /**
    * Redibuja toda la gráfica.
-   * @param {number[]} historial  valores de `v`, del más viejo al más nuevo
-   * @param {number}   setpoint   valor objetivo (línea punteada)
-   * @param {{banda?: number, pico?: number|null}} [marcas]  adornos opcionales:
-   *        `banda` = semiancho de la franja de ±2 %; `pico` = valor del sobrepaso
+   * @param historial  valores de `v`, del más viejo al más nuevo
+   * @param setpoint   valor objetivo (línea punteada)
+   * @param marcas     adornos opcionales (banda de ±2 % y pico de sobrepaso)
    */
-  function draw(historial, setpoint, marcas = {}) {
+  function draw(historial: number[], setpoint: number, marcas: Marcas = {}) {
     const c = colores();
     ctx.clearRect(0, 0, ancho, alto);
     dibujarGrid(c.grid);

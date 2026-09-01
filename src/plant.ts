@@ -11,22 +11,30 @@
 // La ecuación es:  dv/dt = (u - v) / tau
 // es decir: "la salida cambia más rápido cuanto más lejos está de la entrada".
 
+/** Estado de la planta en un instante. */
+export interface PlantState {
+  /** Salida medida (lo que perseguimos hacia el setpoint). */
+  v: number;
+  /** Constante de tiempo en segundos. */
+  tau: number;
+}
+
 /**
  * Crea el estado inicial de la planta.
- * @param {number} tau  constante de tiempo en segundos
+ * @param tau  constante de tiempo en segundos
  */
-export function createState(tau = 1) {
+export function createState(tau = 1): PlantState {
   return { v: 0, tau };
 }
 
 /**
  * Avanza la simulación un paso de tiempo `dt`.
  * Devuelve un estado NUEVO (no modifica el que recibe).
- * @param {{v: number, tau: number}} state  estado actual
- * @param {number} u   entrada aplicada ahora
- * @param {number} dt  paso de tiempo en segundos
+ * @param state  estado actual
+ * @param u      entrada aplicada ahora
+ * @param dt     paso de tiempo en segundos
  */
-export function step(state, u, dt) {
+export function step(state: PlantState, u: number, dt: number): PlantState {
   // Velocidad de cambio de la salida en este instante.
   const dvdt = (u - state.v) / state.tau;
 

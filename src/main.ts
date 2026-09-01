@@ -1,8 +1,8 @@
 import './style.css'
-import { createState, step } from './plant.js'
-import { createPid, compute, reset } from './pid.js'
-import { createPlot, MAX_PUNTOS } from './plot.js'
-import { calcularMetricas } from './metrics.js'
+import { createState, step, type PlantState } from './plant'
+import { createPid, compute, reset, type PidGains, type PidState } from './pid'
+import { createPlot, MAX_PUNTOS, type Marcas } from './plot'
+import { calcularMetricas, type Metricas } from './metrics'
 
 // ─── Configuración de la simulación ───────────────────────────────────────────
 const DT = 0.03            // paso de tiempo fijo, en segundos
@@ -20,25 +20,36 @@ const PRESETS = {
   pi: { Kp: 1.5, Ki: 1, Kd: 0 },
   pid: { Kp: 3, Ki: 1.5, Kd: 0.25 },
   osc: { Kp: 3, Ki: 10, Kd: 0 },
-}
+} satisfies Record<string, PidGains>
+
+type NombrePreset = keyof typeof PRESETS
 
 // ¿El sistema operativo pide menos animación? Entonces no animamos: calculamos
 // la respuesta completa de una vez y la dibujamos estática.
 const prefiereMenosMovimiento =
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+// Busca un elemento que TIENE que existir; si falta, es un error de programación.
+function requerido<T extends Element>(selector: string): T {
+  const el = document.querySelector<T>(selector)
+  if (el === null) {
+    throw new Error(`Falta el elemento ${selector} en el HTML`)
+  }
+  return el
+}
+
 // ─── Estado ──────────────────────────────────────────────────────────────────
-const plot = createPlot(document.querySelector('#grafica'))
-let planta = createState(TAU)
+const plot = createPlot(requerido<HTMLCanvasElement>('#grafica'))
+let planta: PlantState = createState(TAU)
 const pid = createPid(PRESETS.pid)
 let setpoint = 1
-const historial = []
-let marcas = {} // { banda, pico } para dibujar en la gráfica; lo pone alCambiarParametro()
+const historial: number[] = []
+let marcas: Marcas = {} // lo pone alCambiarParametro()
 
 // ─── Núcleo de la simulación ─────────────────────────────────────────────────
 // Un paso del lazo cerrado sobre un estado dado. `compute` modifica el
 // controlador; `step` devuelve un estado de planta nuevo.
-function avanzar(estadoPlanta, controlador) {
+function avanzar(estadoPlanta: PlantState, controlador: PidState): PlantState {
   const error = setpoint - estadoPlanta.v
   const u = compute(controlador, error, DT)
   return step(estadoPlanta, u, DT)
@@ -62,10 +73,10 @@ function reiniciar() {
 // Corre una respuesta al escalón COMPLETA y fresca (desde v=0, integral=0) con
 // las ganancias actuales, sin tocar el estado en vivo. Sirve para las métricas
 // y para el dibujo estático.
-function simularRespuesta() {
+function simularRespuesta(): number[] {
   let p = createState(TAU)
   const c = createPid(pid) // copia Kp/Ki/Kd; su integral arranca en 0
-  const salida = []
+  const salida: number[] = []
   for (let i = 0; i < MAX_PUNTOS; i++) {
     p = avanzar(p, c)
     salida.push(p.v)
@@ -75,13 +86,13 @@ function simularRespuesta() {
 
 // ─── Métricas ────────────────────────────────────────────────────────────────
 const celdas = {
-  sobrepaso: document.querySelector('#m-sobrepaso'),
-  subida: document.querySelector('#m-subida'),
-  establecimiento: document.querySelector('#m-establecimiento'),
-  error: document.querySelector('#m-error'),
+  sobrepaso: requerido<HTMLElement>('#m-sobrepaso'),
+  subida: requerido<HTMLElement>('#m-subida'),
+  establecimiento: requerido<HTMLElement>('#m-establecimiento'),
+  error: requerido<HTMLElement>('#m-error'),
 }
 
-function mostrarMetricas(metricas) {
+function mostrarMetricas(metricas: Metricas) {
   celdas.sobrepaso.textContent = metricas.alcanzaObjetivo
     ? `${metricas.sobrepaso.toFixed(1)} %`
     : '—'
@@ -122,11 +133,21 @@ function reiniciarYActualizar() {
 }
 
 // ─── Controles ───────────────────────────────────────────────────────────────
+type AplicarSlider = (valor: number) => void
+
+interface Slider {
+  set(valor: number): void
+}
+
 // Conecta un <input range> con su etiqueta numérica y con el estado.
 // Devuelve un objeto con `set(valor)` para moverlo desde código (presets, etc.).
-function crearSlider(idSlider, idValor, aplicar) {
-  const slider = document.querySelector(idSlider)
-  const etiqueta = document.querySelector(idValor)
+function crearSlider(
+  idSlider: string,
+  idValor: string,
+  aplicar: AplicarSlider,
+): Slider {
+  const slider = requerido<HTMLInputElement>(idSlider)
+  const etiqueta = requerido<HTMLElement>(idValor)
 
   function sincronizar() {
     const valor = Number(slider.value)
@@ -142,8 +163,8 @@ function crearSlider(idSlider, idValor, aplicar) {
   sincronizar() // aplica el valor inicial del HTML (sin recalcular todavía)
 
   return {
-    set(valor) {
-      slider.value = valor
+    set(valor: number) {
+      slider.value = String(valor)
       sincronizar()
     },
   }
@@ -154,7 +175,7 @@ const sliderKi = crearSlider('#slider-ki', '#valor-ki', (v) => { pid.Ki = v })
 const sliderKd = crearSlider('#slider-kd', '#valor-kd', (v) => { pid.Kd = v })
 const sliderSp = crearSlider('#slider-sp', '#valor-sp', (v) => { setpoint = v })
 
-function aplicarPreset(nombre) {
+function aplicarPreset(nombre: NombrePreset) {
   const g = PRESETS[nombre]
   sliderKp.set(g.Kp)
   sliderKi.set(g.Ki)
@@ -168,11 +189,14 @@ function nuevoEscalon() {
   reiniciarYActualizar()
 }
 
-document.querySelectorAll('[data-preset]').forEach((boton) => {
-  boton.addEventListener('click', () => aplicarPreset(boton.dataset.preset))
+document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach((boton) => {
+  const nombre = boton.dataset.preset as NombrePreset
+  boton.addEventListener('click', () => aplicarPreset(nombre))
 })
-document.querySelector('#btn-escalon').addEventListener('click', nuevoEscalon)
-document.querySelector('#btn-reiniciar').addEventListener('click', reiniciarYActualizar)
+requerido<HTMLButtonElement>('#btn-escalon')
+  .addEventListener('click', nuevoEscalon)
+requerido<HTMLButtonElement>('#btn-reiniciar')
+  .addEventListener('click', reiniciarYActualizar)
 window.addEventListener('resize', () => {
   plot.resize()
   if (prefiereMenosMovimiento) {

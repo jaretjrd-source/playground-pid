@@ -27,22 +27,23 @@ Requiere [Node.js](https://nodejs.org/) 18 o superior.
 
 ```bash
 npm install
-npm run dev      # servidor de desarrollo en http://localhost:5173
-npm run build    # genera dist/ para producción
-npm run preview  # sirve dist/ para revisarlo
+npm run dev        # servidor de desarrollo en http://localhost:5173
+npm run typecheck  # revisa los tipos (tsc --noEmit)
+npm run build      # typecheck + genera dist/ para producción
+npm run preview    # sirve dist/ para revisarlo
 ```
 
 ## Estructura
 
 | Archivo           | Responsabilidad                                              |
 | ----------------- | ----------------------------------------------------------- |
-| `src/plant.js`    | El modelo físico (planta de primer orden).                  |
-| `src/pid.js`      | El controlador PID (términos P, I, D y anti-windup).        |
-| `src/metrics.js`  | Cálculo de las métricas a partir de la respuesta.           |
-| `src/plot.js`     | Dibujo en `<canvas>` (rejilla, setpoint, banda, traza).     |
-| `src/main.js`     | Une todo: bucle de simulación, controles y estado.          |
+| `src/plant.ts`    | El modelo físico (planta de primer orden).                  |
+| `src/pid.ts`      | El controlador PID (términos P, I, D y anti-windup).        |
+| `src/metrics.ts`  | Cálculo de las métricas a partir de la respuesta.           |
+| `src/plot.ts`     | Dibujo en `<canvas>` (rejilla, setpoint, banda, traza).     |
+| `src/main.ts`     | Une todo: bucle de simulación, controles y estado.          |
 
-Cada módulo hace una sola cosa; `plant.js`, `pid.js` y `metrics.js` son funciones
+Cada módulo hace una sola cosa; `plant.ts`, `pid.ts` y `metrics.ts` son funciones
 puras y se pueden probar sin navegador.
 
 ## Qué aprendí
@@ -57,10 +58,16 @@ puras y se pueden probar sin navegador.
   inmutable vs. mutable (la planta devuelve estado nuevo; el PID acumula).
 - Accesibilidad básica: `:focus-visible`, `prefers-reduced-motion`,
   `prefers-color-scheme`, `<fieldset>`/`<legend>`.
+- **TypeScript** (fase final): pasar de `.js` a `.ts` con `interface PlantState`,
+  `PidGains`/`PidState`, `Metricas`, y tipar `step` / `compute`. Lo que más se
+  notó: el compilador obliga a manejar los casos `null` (`getContext`,
+  `querySelector`) que en JS pasaban desapercibidos, y `satisfies` + `keyof`
+  hacen que los presets no acepten un nombre inventado.
 
 ## Stack
 
-JavaScript puro + [Vite](https://vite.dev/). Sin frameworks.
+[TypeScript](https://www.typescriptlang.org/) + [Vite](https://vite.dev/). Sin
+frameworks. (Empezó en JavaScript puro y se migró a TS al final.)
 
 ---
 

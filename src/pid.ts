@@ -18,25 +18,41 @@
 // se pasaría muchísimo del objetivo antes de corregirse.
 const I_MAX = 5
 
+/** Las tres ganancias del PID. */
+export interface PidGains {
+  Kp: number
+  Ki: number
+  Kd: number
+}
+
+/** Controlador completo: las ganancias más el estado que arrastra entre pasos. */
+export interface PidState extends PidGains {
+  /** Suma acumulada de error · dt (término I). */
+  integral: number
+  /** Error del paso anterior (para el término D). */
+  errorPrevio: number
+  /** ¿Ya tenemos un `errorPrevio` válido? */
+  iniciado: boolean
+}
+
 /**
  * Crea el controlador con sus ganancias iniciales.
- * @param {{Kp: number, Ki: number, Kd: number}} gains
  */
-export function createPid(gains) {
+export function createPid(gains: PidGains): PidState {
   return {
     Kp: gains.Kp,
     Ki: gains.Ki,
     Kd: gains.Kd,
-    integral: 0,      // suma acumulada de error · dt  (término I)
-    errorPrevio: 0,   // error del paso anterior       (para el término D)
-    iniciado: false,  // ¿ya tenemos un errorPrevio válido?
+    integral: 0,
+    errorPrevio: 0,
+    iniciado: false,
   }
 }
 
 /**
  * Vuelve el controlador a cero (sin tocar las ganancias Kp/Ki/Kd).
  */
-export function reset(pid) {
+export function reset(pid: PidState): void {
   pid.integral = 0
   pid.errorPrevio = 0
   pid.iniciado = false
@@ -44,14 +60,13 @@ export function reset(pid) {
 
 /**
  * Calcula la entrada `u` para este instante.
- * A diferencia de plant.js, aquí SÍ modificamos el objeto `pid` directamente,
+ * A diferencia de plant.ts, aquí SÍ modificamos el objeto `pid` directamente,
  * porque el controlador va arrastrando estado (la integral) de un paso al otro.
- * @param {object} pid    controlador creado con createPid
- * @param {number} error  setpoint - valor actual de la planta
- * @param {number} dt     paso de tiempo en segundos
- * @returns {number} u
+ * @param pid    controlador creado con createPid
+ * @param error  setpoint - valor actual de la planta
+ * @param dt     paso de tiempo en segundos
  */
-export function compute(pid, error, dt) {
+export function compute(pid: PidState, error: number, dt: number): number {
   // ── P ──
   const P = pid.Kp * error
 

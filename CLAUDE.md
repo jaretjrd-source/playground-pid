@@ -40,7 +40,8 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 
 ## Decisiones técnicas
 
-- **JavaScript puro + Vite** (plantilla `vanilla`). Sin framework.
+- **JavaScript puro + Vite** (plantilla `vanilla`). Sin framework. → migrado a
+  **TypeScript** en la Fase 8 (mismo Vite, `tsc --noEmit` para chequear tipos).
 - Simulación en `<canvas>` con `requestAnimationFrame`.
 - Código en **módulos ES**: separar la simulación (`plant.js`), el controlador
   (`pid.js`), el dibujo (`plot.js`) y la interfaz (`main.js`).
@@ -59,7 +60,7 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 - [x] Fase 5 — Pulido visual y UX
 - [x] Fase 6 — Calidad de código y README
 - [x] Fase 7 — Publicar y enlazar desde el portafolio
-- [ ] Fase 8 — Migrar a TypeScript
+- [x] Fase 8 — Migrar a TypeScript
 - [ ] Fase 9 — Extras (opcional)
 
 ---
@@ -209,13 +210,18 @@ Meta: que se vea como algo terminado y de portafolio.
 
 Meta: el "poco de TypeScript".
 
-- [ ] `npm install -D typescript` y crear `tsconfig.json` (o usar plantilla `vanilla-ts`).
-- [ ] Renombrar `.js` → `.ts` uno por uno.
-- [ ] Tipar: `interface PlantState`, `interface PidState`, `interface PidGains`,
-  y los parámetros/retornos de `step` y `compute`.
-- [ ] Resolver los errores de tipo que aparezcan (ahí está el aprendizaje).
-- [ ] `npm run build` sin errores de TS; la app funciona igual.
-- [ ] Anotar en el README qué cambió y qué se sintió distinto.
+- [x] `npm install -D typescript` y crear `tsconfig.json` (strict).
+- [x] Renombrar `.js` → `.ts` uno por uno (con `git mv`). `index.html` apunta a
+  `main.ts`. Script `typecheck` (`tsc --noEmit`); `build` lo corre antes de Vite.
+- [x] Tipar: `PlantState`, `PidGains`/`PidState`, `Metricas`, `Marcas`, `Plot`,
+  y los parámetros/retornos de `step` y `compute`. `PRESETS ... satisfies
+  Record<string, PidGains>` + `keyof` para `NombrePreset`.
+- [x] Resolver los errores de tipo: `null` de `getContext` (nombre nuevo para
+  quitar el null en las funciones internas), `querySelector` (helper
+  `requerido<T>()`), `tEstablecimiento: number | null`, `src/vite-env.d.ts` para
+  el import de `./style.css`.
+- [x] `npm run build` sin errores de TS; métricas idénticas antes/después.
+- [x] Anotar en el README qué cambió y qué se sintió distinto.
 
 **Fase 8 lista cuando:** todo el proyecto está en TS y compila limpio.
 
