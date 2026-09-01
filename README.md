@@ -7,7 +7,7 @@ en vivo de la respuesta con sus métricas de desempeño.
 
 **Demo:** https://jaretjrd-source.github.io/playground-pid/
 
-![Captura del playground](docs/captura.png)
+![Captura del playground](docs/Playground-PID.png)
 
 ## Qué hace
 
