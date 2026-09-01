@@ -57,8 +57,8 @@ https://claude.ai/code/artifact/fb1aa485-e1fd-4864-a959-1910f846acfe
 - [x] Fase 3 — Controles e interacción
 - [x] Fase 4 — Métricas de desempeño
 - [x] Fase 5 — Pulido visual y UX
-- [~] Fase 6 — Calidad de código y README (falta Lighthouse ≥ 90, tras el deploy)
-- [ ] Fase 7 — Publicar y enlazar desde el portafolio
+- [x] Fase 6 — Calidad de código y README
+- [x] Fase 7 — Publicar y enlazar desde el portafolio
 - [ ] Fase 8 — Migrar a TypeScript
 - [ ] Fase 9 — Extras (opcional)
 
@@ -182,7 +182,8 @@ Meta: que se vea como algo terminado y de portafolio.
 - [x] Código muerto eliminado. `.gitattributes` normaliza los finales de línea.
 - [x] `README.md` del repo: qué es, cómo correrlo (`npm install` / `npm run dev`),
   captura o GIF, y qué aprendí. (La captura se añade en la Fase 7 tras el deploy.)
-- [ ] Lighthouse (tras el deploy) ≥ 90 en las 4 categorías. → se hace en la Fase 7.
+- [x] Lighthouse (sobre la URL pública) ≥ 90 en las 4 categorías. → confirmado
+  por Jaret: las 4 por encima de 90.
 
 **Fase 6 lista cuando:** otra persona clona el repo, lo corre y entiende el código.
 
@@ -195,9 +196,10 @@ Meta: que se vea como algo terminado y de portafolio.
 - [x] Deploy a GitHub Pages con GitHub Actions (`.github/workflows/deploy.yml`).
 - [x] La URL pública abre y funciona (sin 404 en la consola).
   → https://jaretjrd-source.github.io/playground-pid/
-- [ ] Probarla en el teléfono y en otra computadora.
-- [ ] Agregar el proyecto al **portafolio** (`../Pagina_web`): nueva tarjeta en
-  "Proyectos" con captura, descripción, enlace a la demo y al código (ES + EN).
+- [~] Probarla en el teléfono y en otra computadora. (Falta la prueba de Jaret.)
+- [x] Agregar el proyecto al **portafolio** (`../Pagina_web`, repo `portafolio`):
+  tarjeta como primer proyecto en "Proyectos" con captura, descripción bilingüe
+  (ES + EN) y enlaces a la demo y al código. Borradores ES/EN también.
 
 **Fase 7 lista cuando:** el playground está en línea y enlazado desde el portafolio.
 
